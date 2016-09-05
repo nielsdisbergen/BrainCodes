@@ -1,4 +1,4 @@
-## MR_BuildDesignMatrices.m ##
+## BuildDesignMatrices.m ##
 
 Code dependency towards [NeuroElf](http://neuroelf.net/ "http://neuroelf.net/") on the path, tested with v0.9d and 1.0.
 
@@ -48,7 +48,7 @@ for cntRun = 1:nRuns
         DM.PARAMS_MDM = MDMparams; % declared = built
     end
 
-    MR_BuildDesignMatrices(DM); % DesignMatDat updated by function
+    BuildDesignMatrices(DM); % DesignMatDat updated by function
 
 end
 
