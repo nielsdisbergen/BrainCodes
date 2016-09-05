@@ -1,4 +1,4 @@
-function MR_BuildDesignMatrices(InputStruct)
+function BuildDesignMatrices(InputStruct)
 %
 % @ Niels R. Disbergen
 % adjusted for sharing, v1.4 - April 2016
@@ -22,7 +22,7 @@ function MR_BuildDesignMatrices(InputStruct)
 % HRF via spm_hrf function, hardcoded
 % 
 % Syntax:
-% MR_BuildDesignMatrices(InputStruct)
+% BuildDesignMatrices(InputStruct)
 %
 % Input:
 % Struct with following field names (case-sensitive):
