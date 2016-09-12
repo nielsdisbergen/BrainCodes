@@ -5,11 +5,11 @@ In case you have any questions, problems, or suggestions, feel free to contact m
 ## _Repository Tree_ ##
 
 #### BrainVoyager (Matlab) ####
-- Build [design matrices](../tree/master/BuildDesignMatrices) based on protocol (\*.prt) files
-- Compute [GLM contrast(s)](../tree/master/GLMcontrasts) from fitted \*.glm files
+- Build [design matrices](../blob/master/BuildDesignMatrices) based on protocol (\*.prt) files
+- Compute [GLM contrast(s)](../blob/master/GLMcontrasts) from fitted \*.glm files
 
 #### Wav-processing (Python) ####
-- Apply [Sensimetrics Equalization](../tree/master/SensimetricsWavFilter) filters to \*.wav files
+- Apply [Sensimetrics Equalization](../blob/master/SensimetricsWavFilter) filters to \*.wav files
 
 _More codes will follow in the near future_
 
