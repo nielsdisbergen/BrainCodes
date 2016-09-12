@@ -2,7 +2,7 @@ This repository contains brain imaging analysis and processing related codes. Al
 
 In case you have any questions, problems, or suggestions, feel free to contact me or open an issue.
 
-## _Repository Tree_ ##
+## Repository Tree ##
 
 #### BrainVoyager (Matlab) ####
 - Build [design matrices](https://github.com/nielsdisbergen/BrainCodes/tree/master/BuildDesignMatrices) based on protocol (\*.prt) files
