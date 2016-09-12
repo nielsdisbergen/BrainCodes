@@ -13,4 +13,4 @@ In case you have any questions, problems, or suggestions, feel free to contact m
 
 _More codes will follow in the near future_
 
-** Niels R. Disbergen - 2016 **
+**Niels R. Disbergen - 2016**
