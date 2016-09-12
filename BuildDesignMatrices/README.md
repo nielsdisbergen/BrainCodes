@@ -36,8 +36,8 @@ for cntRun = 1:nRuns
 
     DM.N_VOLUMES = 175;
 
-    DM.PRT_FILE = 'C:/Imaging/Prt_file.prt';
-    DM.MOTPAR_FILE = 'C:/Imaging/Mct_file.mct'; % declared = added
+    DM.PRT_FILE = '~/Imaging/Prt_file.prt';
+    DM.MOTPAR_FILE = '~/Imaging/Mct_file.mct'; % declared = added
 
     DM.PARAMS_HRF = HrfBase;
 

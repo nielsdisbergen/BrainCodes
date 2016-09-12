@@ -23,7 +23,7 @@ function BvGlmContr(InputStruct)
 %       'VMP_FILE'       = Full path to VMP file
 %        CONTR_MAT       = Matrix containing contrast values for Beta's as
 %                          fitted in the GLM [n-predictors * n-contrasts]
-%       'CONTR_NAME_MAT' = Names to save contrasts with {1, n-names}
+%       'CONTR_NAME_MAT' = Names to save contrasts with {1, n-contrasts}
 %
 %   Optional: 
 %   If not declared or incorrectly formatted, set to empty
@@ -32,7 +32,7 @@ function BvGlmContr(InputStruct)
 % Example:
 %   DatIn.GLM_FILE = 'C:/Imaging/GLM_file.glm';
 %   DatIn.VMP_FILE = 'C:/Imaging/VMO_file.vmp';
-%   DatIn.CONTR_MAT = [1 1 zeros(1,112); 1 -1 zeros(1,112)]';
+%   DatIn.CONTR_MAT = [1 1 zeros(1,109); 1 -1 zeros(1,109)]';
 %   DatIn.CONTR_NAME_MAT = {'MainEffSound' 'Contr_SoundSilence'};
 %   DatIn.MSK_FILE = 'C:/Imaging/MASK_file.msk';
 %   BvGlmContr(DatIn);
@@ -194,7 +194,6 @@ end
 function [T2D] = MrGlmContrT2d(Betas2D,contrMat,varRes2D,iXX)
 %
 % @ Niels R. Disbergen
-% Maastricht University
 %
 % Calcualte 2D-T's for contrasts with GLM Betas
 %
@@ -285,7 +284,7 @@ function [tID, tNp, varargout] = CalcFdrMri(qVec, T2D, df1)
             pThrID(cntQ,1) = tmpPid;
         else
             pThrID(cntQ,1) = 1;
-            warning('No vox exceeds FDR-thresh for q=%1.4f @ cV=1', qVec(cntQ))
+            warning('No voxel exceeds FDR-thresh for q=%1.4f @ cV=1', qVec(cntQ))
         end
         
         % get threshold t's from p's
@@ -298,7 +297,7 @@ function [tID, tNp, varargout] = CalcFdrMri(qVec, T2D, df1)
             pThrNp(cntQ,1) = tmpPidNp;
         else
             pThrNp(cntQ,1) = 1;
-            warning('No vox exceeds FDR-thresh q=%1.4f @ cV=ln(V)+E',qVec(cntQ))
+            warning('No voxel exceeds FDR-thresh q=%1.4f @ cV=ln(V)+E',qVec(cntQ))
         end
 
         tNp(cntQ,1)    = abs(tinv(pThrNp(cntQ,1), df1));
