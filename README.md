@@ -4,11 +4,11 @@ In case you have any questions, problems, or suggestions, feel free to contact m
 
 ## Repository Tree ##
 
-#### BrainVoyager (Matlab) ####
+### BrainVoyager (Matlab) ###
 - Build [design matrices](https://github.com/nielsdisbergen/BrainCodes/tree/master/BuildDesignMatrices) based on protocol (\*.prt) files
 - Compute [GLM contrast(s)](https://github.com/nielsdisbergen/BrainCodes/tree/master/GLMcontrasts) from fitted \*.glm files
 
-#### Wav-processing (Python) ####
+### Wav-processing (Python) ###
 - Apply [Sensimetrics Equalization](https://github.com/nielsdisbergen/BrainCodes/tree/master/SensimetricsWavFilter) filters to \*.wav files
 
 _More codes will follow in the near future_
