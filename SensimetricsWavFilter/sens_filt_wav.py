@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 
-"""
-    This module performs equalification filtering for the Sensimetrics system. Original script based filtering is only
-    supported for MATLAB. Testing performed by comparison of resulting wav-files to both MATLAB and official EQ
-    Filtering application of Sensimetrics in Python 2.7.12 and 3.5.2 with scipy 0.18 and numpy 1.11.1.
+"""Apply Sensimetrics filters to *.wav file
+    
+    This performs equalification filtering for the Sensimetrics system;
+    official script based filtering is only supported in MATLAB. Testing
+    performed by comparison of resulting wav-files to both MATLAB and official
+    EQ Filtering application of Sensimetrics, using Python 2.7.12 and 3.5.2 with
+    scipy 0.18 and numpy 1.11.1.
 
-    Implementation for 16bit *.wav-files only.
+    Implementation built for 16bit *.wav-files only.
 """
 
 # built-in modules
@@ -25,7 +28,8 @@ __license__ = "MIT"
 
 def main(args):
 
-    """ arguments (args) are send through the option parser and fed to sens_filt """
+    """Arguments (args) are send through the option parser and fed to sens_filt
+    """
 
     psr = argparse.ArgumentParser(argument_default="", prog="sens_filt_wav.py", description="Filter wav-files using"
                                   "Sensimetrics *.bin filters for Left and Right Channels",
@@ -41,12 +45,36 @@ def main(args):
 
 def sens_filt(wav_file, filt_left, filt_right, lab_suffix=""):
 
-    """
-        Sensimetrics filters filt_left and filt_right are loaded from Sensimetrics provided binary files and applied
-        to *.wav file left and right channels independently. If the *.wav file is only a single channel, channel 1 will
-        be copied to channel two and filters applied accordingly. New wav-file is written to the original *.wav
-        directory and saved with suffix '_sensFilt.wav', when called with a lab_suffix this will be suffix to the
-        file-name, e.g. '_sensFilt7T.wav'.
+    """Applies Sensimetrics filters to a *.wav file
+        
+        Filters are loaded from Sensimetrics provided binary files and 
+        applied to *.wav file left and right channels independently. If the 
+        *.wav file is only a single channel, channel one will be copied to 
+        channel two and filters applied accordingly. New wav-file is written to 
+        the original *.wav directory and saved with suffix '_sensFilt.wav'. 
+        When called with a lab_suffix this will be suffix to the file-name, 
+        e.g. '_sensFilt7T.wav'.
+        
+        Args:
+            wav_file (file): *.wav file to filter, 16-bit only
+            filt_left (file): left channel Sensimetrics filter file 
+            filt_right (file): right channel Sensimetrics filter file
+            lab_suffix (str): name to be added as suffix at the end of 
+                the filtered *.wav file
+        
+        Returns:
+            int: 0 if successful
+        
+        Raises:
+            NotImplementedError: *.wav file not 16 bits
+            NotImplementedError: *.wav file with more than two channels
+            
+        Example:
+            sens_filt('/MyWav.wav', '/7Tleft.bin', 
+            '/7Tright.bin', '7TeslaMri')
+        
+            >>> Wav-file filtering successful, saved as 
+            '/MyWav_sensFilt_7TeslaMri.wav'
     """
 
     # import Sensimetrics filters
