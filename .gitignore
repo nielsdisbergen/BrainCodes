@@ -257,3 +257,6 @@ xcuserdata/
 *.moved-aside
 *.xccheckout
 *.xcscmblueprint
+*.iml
+.idea/misc.xml
+*.xml

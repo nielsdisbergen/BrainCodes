@@ -135,11 +135,11 @@ function BvGlmContr(InputStruct)
 %% Variables for contrasts
 
     % For details, see http://support.brainvoyager.com/installation-introduction/23-file-formats/457-developer-guide-the-format-of-glm-files-v4.html
-    %   VARresiduals = SStotal * (1 - R2) / (NTimePoints - NAllPredictors)
+    % VARresiduals = SStotal * (1 - R2) / (NTimePoints - NAllPredictors)
 
     R2 = double(glmDat.GLMData.MultipleRegressionR).^2;
     varRes = SStotal.*(1-R2) ./(df1);
-    
+
     if mskDat
         varRes(mskLogiZero) = 0;        
         [~,mskSaveName]= fileparts(StIn.MSK_FILE);
@@ -154,10 +154,10 @@ function BvGlmContr(InputStruct)
 %% Build contrasts, compute FDR for T's, save VMPs
 
     fprintf('Building contrasts \n')
-    
+
     T   = zeros([mapSize nContr]);
     T2D = zeros(prod(mapSize),nContr);
-    
+
     % vmp with all maps
     allVmp = vmpDat.CopyObject;
     allVmp.NrOfMaps = nContr;
@@ -170,7 +170,7 @@ function BvGlmContr(InputStruct)
         indivVmp.Map.Name = StIn.CONTR_NAME_MAT{1,cntContr};
 
         % t = c'b / sqrt(VARresiduals * c'(X'X)-1c)
-        T2D(:,cntContr) = MrGlmContrT2d(glmBetas2D, StIn.CONTR_MAT(:,cntContr),varRes2D,glmDat.iXX);
+        T2D(:,cntContr) = MrGlmContrT2d(glmBetas2D, StIn.CONTR_MAT(:,cntContr),varRes2D, glmDat.iXX);
         T(:,:,:,cntContr) = reshape(T2D(:,cntContr),mapSize);
 
         [indivVmp.Map.FDRThresholds(:,2), indivVmp.Map.FDRThresholds(:,3)] = CalcFdrMri(indivVmp.Map.FDRThresholds(:,1), T2D(:,cntContr), df1);
@@ -178,7 +178,7 @@ function BvGlmContr(InputStruct)
         indivVmp.Map.VMPData = T(:,:,:,cntContr);
 
         indivVmp.SaveAs(fullfile(mainContSavePath,sprintf('%s%s.vmp',StIn.CONTR_NAME_MAT{1,cntContr},mskSaveName)));
-        
+
         allVmp.Map(cntContr) = indivVmp.Map;
         indivVmp.ClearObject;
 
@@ -207,7 +207,7 @@ function [T2D] = MrGlmContrT2d(Betas2D,contrMat,varRes2D,iXX)
 %
 
     narginchk(4,4)
-    
+
     nContr = size(contrMat,2);
     T2D    = nan(size(Betas2D,1),nContr);
 
@@ -250,7 +250,7 @@ function [tID, tNp, varargout] = CalcFdrMri(qVec, T2D, df1)
 %% Check & declare
 
     narginchk(3,3)
-    
+
     if isvector(T2D)
         nVoxs=length(T2D);
     else
@@ -279,14 +279,14 @@ function [tID, tNp, varargout] = CalcFdrMri(qVec, T2D, df1)
 
         % find p's matching for q
         tmpPid = pVals(find(pVals<=((1:nVoxs)'/nVoxs)*double(qVec(cntQ)/1), 1, 'last'));
-        
+
         if ~isempty(tmpPid)
             pThrID(cntQ,1) = tmpPid;
         else
             pThrID(cntQ,1) = 1;
             warning('No voxel exceeds FDR-thresh for q=%1.4f @ cV=1', qVec(cntQ))
         end
-        
+
         % get threshold t's from p's
         tID(cntQ,1) = abs(tinv(pThrID(cntQ,1), df1));
 
