@@ -8,13 +8,16 @@
     EQ Filtering application of Sensimetrics, using Python 2.7.12 and 3.5.2 with
     scipy 0.18 and numpy 1.11.1.
 
-    Implementation built for 16bit *.wav-files only.
+    Implementation built for 16bit *.wav-files only; Sensimetrics filter-files tend
+    to be sampled at 44.1kHz, in case wav-file is at different sample frequency a
+    warning will be issued. No re-sampling is currently implemented.
 """
 
 # built-in modules
 import os
 import sys
 import argparse
+import warnings
 
 # third-party modules
 import numpy as np
@@ -86,6 +89,10 @@ def sens_filt(wav_file, filt_left, filt_right, lab_suffix=""):
     # error if not 16bit wav-file
     if wav_dat.dtype != 'int16':
         raise NotImplementedError("input wav-file is \"%s\" format, code implemented for 16bit only" % wav_dat.dtype)
+
+    if fs != 44100:
+        warnings.warn("input wav-file is sampled at %iHz, Sensimetrics files tend to be sampled at 44.1kHz, hence operation could lead to incorrect filtering" % fs, Warning)
+
 
     # handle number of channels in wav-file
     if np.size(wav_dat.shape) == 1:  # single channel, left copy before filtering
