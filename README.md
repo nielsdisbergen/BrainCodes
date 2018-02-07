@@ -2,14 +2,14 @@ This repository contains brain imaging analysis and processing related codes. Al
 
 In case you have any questions, problems, or suggestions, feel free to contact me or open an issue.
 
-## _Repository Tree_ ##
+## Repository Tree ##
 
-#### BrainVoyager (Matlab) ####
-- Build [design matrices](https://github.com/nielsdisbergen/BrainCodes/tree/master/BuildDesignMatrices) based on protocol (\*.prt) files
-- Compute [GLM contrast(s)](https://github.com/nielsdisbergen/BrainCodes/tree/master/GLMcontrasts) from fitted \*.glm files
+### BrainVoyager (Matlab) ###
+- Build [design matrices](/BuildDesignMatrices) based on protocol (\*.prt) files
+- Compute [GLM contrast(s)](/GLMcontrasts) from fitted \*.glm files
 
-#### Wav-processing (Python) ####
-- Apply [Sensimetrics Equalization](https://github.com/nielsdisbergen/BrainCodes/tree/master/SensimetricsWavFilter) filters to \*.wav files
+### Wav-processing (Python) ###
+- Apply [Sensimetrics Equalization](/SensimetricsWavFilter) filters to \*.wav files
 
 _More codes will follow in the near future_
 

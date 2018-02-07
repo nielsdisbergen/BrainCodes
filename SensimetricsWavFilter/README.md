@@ -2,7 +2,7 @@
 
 Module ```sens_filt_wav.py``` performs equalization filtering for the Sensimetrics S14 system employing their \*.bin filters for Left and Right channels individually. When a single channel wav-file is provided, channel 1 will be copied to channel 2. Filtered file saved in \*.wav file directory.
 
-**_Note_**: only processing of 16bit wave-files is supported
+**_Note_**: only processing of 16bit wave-files sampled at the same frequency as your Sensimetrics filter sampling frequency (44.1kHz generally) is supported, i.e. no resampling is performed on the filter impulse in the current version.
 
 Dependency towards [Scipy](https://www.scipy.org "https://www.scipy.org") with the [Numpy](http://www.numpy.org "http://www.numpy.org") package included.
 
