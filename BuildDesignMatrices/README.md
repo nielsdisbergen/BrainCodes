@@ -54,6 +54,6 @@ end
 
 ```
 
-See code for more info on required and optional variables with their defaults; when variables are not, or incorrectly, declared default values are assigned, for example: `addParameter(pObj, 'EXCL_PREDS', {}, @iscellstr)` has a default value of `{}` when `EXCL_PREDS` is not defined or not a cell string.
+See code for more info on required and optional variables with their defaults; when variables are not declared, default values are assigned, for example: `addParameter(pObj, 'EXCL_PREDS', {}, @iscellstr)` has a default value of `{}` when `EXCL_PREDS` is not defined.
 
 Niels R. Disbergen - 2015
