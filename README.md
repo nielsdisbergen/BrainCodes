@@ -11,6 +11,6 @@ In case you have any questions, problems, or suggestions, feel free to contact m
 ### Wav-processing (Python) ###
 - Apply [Sensimetrics Equalization](/SensimetricsWavFilter) filters to \*.wav files
 
-_More codes will follow in the near future_
+_More codes will follow when I find the time to prepare them for sharing_
 
-**Niels R. Disbergen - 2016**
+**Niels R. Disbergen - 2019**
