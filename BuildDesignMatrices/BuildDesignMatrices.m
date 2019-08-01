@@ -70,7 +70,7 @@ function BuildDesignMatrices(InputStruct)
 
     global DesignMatDat;
 
-    HrfBase = struct('TR',2000,'respdel',6,'undshdel',16,'respdisp',1,'undshdisp',1,'respundshrat',6,'onset',0);
+    HrfBase = struct('TR', 2000,'respdel', 6,'undshdel', 16,'respdisp', 1,'undshdisp', 1,'respundshrat', 6,'onset', 0);
 
     if ~isfield(DesignMatDat, 'sdmSaveNames')
         DesignMatDat.sdmSaveNames = {};
@@ -84,21 +84,21 @@ function BuildDesignMatrices(InputStruct)
     pObj.KeepUnmatched = true;
     pObj.FunctionName = mfilename;
 
-    % required vars
+    % required vars settings
     varsReq = {'PRT_FILE' 'N_VOLUMES'};
-    chkVals = {@(x) exist(x,'file')==2, @(x)mod(x,1)==0};
+    chkVals = {@(x) exist(x,'file')==2, @(x) mod(x,1)==0};
 
     for cntReq = 1:length(varsReq)
         addRequired(pObj,varsReq{cntReq},chkVals{cntReq})
     end
 
-    % if not or incorrectly assigned, set optional
+    % if these are not assigned, set optional
      addParameter(pObj,'MOTPAR_FILE', [], @(x) exist(x,'file')==2)
      addParameter(pObj,'PARAMS_HRF', HrfBase, @(x) isstruct(x) & sum(isfield(x,fieldnames(HrfBase)))==length(fieldnames(HrfBase)))
      addParameter(pObj,'EXCL_PREDS', {}, @iscellstr)
      addParameter(pObj,'CONV_PRED', false, @islogical)
      addParameter(pObj,'PARAMS_MDM', [], @(x) isstruct(x) & sum(isfield(x,{'RFXGLM', 'PSCtransform','zTransform','separatePreds'}))==4)
-     addParameter(pObj,'RUN_NAME', sprintf('Run%i',size(DesignMatDat.sdmSaveNames,1)+1), @ischar)
+     addParameter(pObj,'RUN_NAME', sprintf('Run%i', size(DesignMatDat.sdmSaveNames,1)+1), @ischar)
      addParameter(pObj,'PP_NAME', 'Subject', @ischar)
 
      parse(pObj, InputStruct.(varsReq{1}), InputStruct.(varsReq{2}), InputStruct.(varsReq{3}), InputStruct)
@@ -109,7 +109,7 @@ function BuildDesignMatrices(InputStruct)
 %% Check and create
 
     prtPath = fileparts(InpDat.PRT_FILE); % save location sdm
-    [~,sdmNameBase,~] = fileparts(InpDat.PRT_FILE); % save name base sdm
+    [~, sdmNameBase, ~] = fileparts(InpDat.PRT_FILE); % save name base sdm
 
     % no MDMparams no mdm
     if ~isempty(InpDat.PARAMS_MDM)
@@ -136,7 +136,7 @@ function BuildDesignMatrices(InputStruct)
     % build hrf
     [HrfBase, paraHrf] = spm_hrf_desimat(InpDat.PARAMS_HRF.TR/1000, [InpDat.PARAMS_HRF.respdel, InpDat.PARAMS_HRF.undshdel, InpDat.PARAMS_HRF.respdisp, InpDat.PARAMS_HRF.undshdisp, InpDat.PARAMS_HRF.respundshrat, InpDat.PARAMS_HRF.onset]);
     
-    fprintf('SDM for %s \n', InpDat.PRT_FILE)
+    fprintf('SDM for "%s" \n', InpDat.PRT_FILE)
 
     % get N-volumes and slices
     PredInf.totalVols = InpDat.N_VOLUMES;
@@ -145,24 +145,24 @@ function BuildDesignMatrices(InputStruct)
     prtRead = xff(InpDat.PRT_FILE);
 
     % declare variables
-    PredInf.nDeclPreds = size(prtRead.Cond,2);
-    PredInf.nExclPreds = size(InpDat.EXCL_PREDS,2);
-    PredInf.nTotalDeclPreds = PredInf.nDeclPreds-PredInf.nExclPreds;
+    PredInf.nDeclPreds = size(prtRead.Cond, 2);
+    PredInf.nExclPreds = size(InpDat.EXCL_PREDS, 2);
+    PredInf.nTotalDeclPreds = PredInf.nDeclPreds - PredInf.nExclPreds;
 
-    PredInf.predColors = zeros(PredInf.nTotalDeclPreds,3);
+    PredInf.predColors = zeros(PredInf.nTotalDeclPreds, 3);
     PredInf.predNames  = cell(1,1);
 
-    declPredHrf=[];
+    declPredHrf = [];
 
     cntPrtDeclPred = 1;
     declPredBoxcarStore = zeros(PredInf.totalVols, PredInf.nTotalDeclPreds);
 
     % build predictors and convolve boxcars with HRF if called
-    for cntDeclPred=1:PredInf.nDeclPreds
+    for cntDeclPred = 1:PredInf.nDeclPreds
 
-        exclPred=0;
+        exclPred = 0;
 
-        if PredInf.nExclPreds~=0
+        if PredInf.nExclPreds ~= 0
             for cntExclPred = 1:PredInf.nExclPreds
                 if strcmp(prtRead.Cond(cntDeclPred).ConditionName, InpDat.EXCL_PREDS{cntExclPred})
                     exclPred = 1;
@@ -172,24 +172,24 @@ function BuildDesignMatrices(InputStruct)
 
         if ~exclPred
 
-            PredInf.predNames(1,cntPrtDeclPred) = prtRead.Cond(cntDeclPred).ConditionName;
-            PredInf.predColors(cntPrtDeclPred,:) = prtRead.Cond(cntDeclPred).Color;
+            PredInf.predNames(1, cntPrtDeclPred) = prtRead.Cond(cntDeclPred).ConditionName;
+            PredInf.predColors(cntPrtDeclPred, :) = prtRead.Cond(cntDeclPred).Color;
             onOffPred = prtRead.Cond(cntDeclPred).OnOffsets;
 
             declPredBoxcar = zeros(PredInf.totalVols, PredInf.nTotalDeclPreds);
             for cntOnOffSet = 1:prtRead.Cond(cntDeclPred).NrOfOnOffsets
-                if sum(onOffPred)~=0
-                    declPredBoxcar(onOffPred(cntOnOffSet,1):onOffPred(cntOnOffSet,2), cntPrtDeclPred) = 1;
-                    declPredBoxcarStore(onOffPred(cntOnOffSet,1):onOffPred(cntOnOffSet,2), cntPrtDeclPred) = 1;
+                if sum(onOffPred) ~= 0
+                    declPredBoxcar(onOffPred(cntOnOffSet, 1):onOffPred(cntOnOffSet, 2), cntPrtDeclPred) = 1;
+                    declPredBoxcarStore(onOffPred(cntOnOffSet, 1):onOffPred(cntOnOffSet, 2), cntPrtDeclPred) = 1;
                 end
             end
 
             % convolve boxcar with hrf 
             if ~InpDat.CONV_PRED
-                tempPredHrf = declPredBoxcar(:,cntPrtDeclPred);
+                tempPredHrf = declPredBoxcar(:, cntPrtDeclPred);
             else
                 try
-                    tempPredHrf = conv(declPredBoxcar(:,cntPrtDeclPred),HrfBase);
+                    tempPredHrf = conv(declPredBoxcar(:, cntPrtDeclPred), HrfBase);
                 catch ME
                     MEconv = MException('ASAimaging:DesignMats:convError', 'Error while convolving for "%s"', InpDat.PRT_FILE);
                     MEconv = addCause(MEconv, ME);
@@ -198,7 +198,7 @@ function BuildDesignMatrices(InputStruct)
             end
 
             % cut at total volumes
-            declPredHrf(:,cntPrtDeclPred) = tempPredHrf(1:PredInf.totalVols,:);
+            declPredHrf(:, cntPrtDeclPred) = tempPredHrf(1:PredInf.totalVols, :);
 
             cntPrtDeclPred = cntPrtDeclPred + 1;
 
@@ -216,17 +216,17 @@ function BuildDesignMatrices(InputStruct)
         % read MCT
         motionParam = xff(InpDat.MOTPAR_FILE);
 
-        if size(motionParam.SDMMatrix,1) ~= InpDat.N_VOLUMES
-            throw(MException('DesiMat:IncludeMCT:MCTvolumessNotEqToeDeclaredVolumes','ERROR: Motion parameter file has %i volumes, declared volumes has %i', size(motionParam.SDMMatrix,1), InpDat.N_VOLUMES));
+        if size(motionParam.SDMMatrix, 1) ~= InpDat.N_VOLUMES
+            throw(MException('DesiMat:IncludeMCT:MCTvolumessNotEqToeDeclaredVolumes','ERROR: Motion parameter file has %i volumes, declared volumes has %i', size(motionParam.SDMMatrix, 1), InpDat.N_VOLUMES));
         end
 
         PredInf.predNames = [PredInf.predNames motionParam.PredictorNames 'Constant'];
-        PredInf.nMCTparam = size(motionParam.SDMMatrix,2);
+        PredInf.nMCTparam = size(motionParam.SDMMatrix, 2);
 
         PredInf.nAllPreds = PredInf.nTotalDeclPreds + PredInf.nMCTparam;
 
         % add preds, motion & intercept
-        designMat = [declPredHrf motionParam.SDMMatrix ones(PredInf.totalVols,1)];
+        designMat = [declPredHrf motionParam.SDMMatrix ones(PredInf.totalVols, 1)];
 
         motionParam.ClearObject;
         currSdmName = sprintf('%s_inclMCT.sdm', sdmNameBase);
@@ -234,16 +234,16 @@ function BuildDesignMatrices(InputStruct)
     else
 
         PredInf.nAllPreds = PredInf.nTotalDeclPreds;
-        PredInf.predNames(1,end+1) = 'Constant';
+        PredInf.predNames(1, end+1) = 'Constant';
 
-        designMat = [declPredHrf ones(PredInf.totalVols,1)];
+        designMat = [declPredHrf ones(PredInf.totalVols, 1)];
         currSdmName = sprintf('%s.sdm', sdmNameBase);
 
     end
 
     DesignMatDat.sdmSaveNames = [DesignMatDat.sdmSaveNames; currSdmName];
 
-    DesignMatDat.(InpDat.RUN_NAME) = struct('PredictorNames',{PredInf.predNames}, 'PredictorColors' ,{PredInf.predColors},'ExcludedPredictors',{InpDat.EXCL_PREDS}, 'BoxCars', declPredBoxcar, 'DesignMatrix', designMat,'hrf_imp', HrfBase, 'hrf_param', paraHrf);
+    DesignMatDat.(InpDat.RUN_NAME) = struct('PredictorNames', {PredInf.predNames}, 'PredictorColors' , {PredInf.predColors}, 'ExcludedPredictors', {InpDat.EXCL_PREDS}, 'BoxCars', declPredBoxcar, 'DesignMatrix', designMat,'hrf_imp', HrfBase, 'hrf_param', paraHrf);
 
     DesignMatDat.(InpDat.RUN_NAME).PredInfo = PredInf;
 
@@ -270,32 +270,32 @@ function writeSDM(PredInf, DesignMatDat, currSdmName, InpDat, fmrPath)
 %% Build BrainVoyager *.sdm variables
 
     prtSDM{1} = 'FileVersion: 1';
-    prtSDM{2} = sprintf('NrOfPredictors: %i', PredInf.nAllPreds+1);%+1=>intercept
+    prtSDM{2} = sprintf('NrOfPredictors: %i', PredInf.nAllPreds + 1); %+1=>intercept
     prtSDM{3} = sprintf('NrOfDataPoints: %i', PredInf.totalVols);
     prtSDM{4} = sprintf('IncludesConstant: 1');
-    prtSDM{5} = sprintf('FirstConfoundPredictor: %i', PredInf.nTotalDeclPreds+1);
+    prtSDM{5} = sprintf('FirstConfoundPredictor: %i', PredInf.nTotalDeclPreds + 1);
 
     % build predictor colors
-    for cntPred=1:PredInf.nTotalDeclPreds
-        if cntPred~=1
-            prtSDM{6}=sprintf('%s   %i %i %i', prtSDM{6}, PredInf.predColors(cntPred,:));
+    for cntPred = 1:PredInf.nTotalDeclPreds
+        if cntPred ~= 1
+            prtSDM{6} = sprintf('%s   %i %i %i', prtSDM{6}, PredInf.predColors(cntPred, :));
         else
-            prtSDM{6}=sprintf('%i %i %i', PredInf.predColors(cntPred,:));
+            prtSDM{6} = sprintf('%i %i %i', PredInf.predColors(cntPred, :));
         end
     end
 
     % motionparams + intercept colors
-    for cntPred=1:PredInf.nMCTparam+1 
-        prtSDM{6}=sprintf('%s   %i %i %i', prtSDM{6}, [255 255 255]);
+    for cntPred = 1:PredInf.nMCTparam + 1 
+        prtSDM{6} = sprintf('%s   %i %i %i', prtSDM{6}, [255 255 255]);
     end
 
     % build predictor names
-    prtSDM{7}='';
-    for cntPred=1:size(PredInf.predNames,2)
-        if cntPred~=1
-            prtSDM{7}=sprintf('%s "%s"', prtSDM{7}, PredInf.predNames{1,cntPred});
+    prtSDM{7} = '';
+    for cntPred = 1:size(PredInf.predNames, 2)
+        if cntPred ~= 1
+            prtSDM{7} = sprintf('%s "%s"', prtSDM{7}, PredInf.predNames{1, cntPred});
         else
-            prtSDM{7}=sprintf('"%s"', PredInf.predNames{1,cntPred});
+            prtSDM{7} = sprintf('"%s"', PredInf.predNames{1, cntPred});
         end
     end
 
@@ -304,22 +304,22 @@ function writeSDM(PredInf, DesignMatDat, currSdmName, InpDat, fmrPath)
 
     sdmSaveName = fullfile(fmrPath, currSdmName);
 
-    if exist(fmrPath,'dir')~=7
+    if exist(fmrPath, 'dir') ~= 7
         mkdir(fmrPath)
     end
 
-    dlmwrite(sdmSaveName,'')
+    dlmwrite(sdmSaveName, '')
     printData(prtSDM{1}, 0, sdmSaveName)
 
-    for cntPrt=2:7
-        if cntPrt==2 || cntPrt==3 || cntPrt==6 
+    for cntPrt = 2:7
+        if cntPrt == 2 || cntPrt == 3 || cntPrt == 6 
             printData(prtSDM{cntPrt}, 1, sdmSaveName)
         else
             printData(prtSDM{cntPrt}, 0, sdmSaveName)
         end
     end
 
-    dlmwrite(sdmSaveName, DesignMatDat.(InpDat.RUN_NAME).DesignMatrix,'-append','roffset', 0,'delimiter',' ')
+    dlmwrite(sdmSaveName, DesignMatDat.(InpDat.RUN_NAME).DesignMatrix, '-append', 'roffset', 0, 'delimiter', ' ')
 
 
 end
@@ -343,15 +343,15 @@ function [DesignMatDat] = writeMDM(DesignMatDat, InpDat, inclMct, fmrPath)
 %% Check and create
     
     if inclMct
-        modSup='_inclMCT';
+        modSup = '_inclMCT';
     else
-        modSup='';
+        modSup = '';
     end
 
     if ispc
-        slshIds = strfind(fmrPath,'\');
+        slshIds = strfind(fmrPath, '\');
     else
-        slshIds = strfind(fmrPath,'/');
+        slshIds = strfind(fmrPath, '/');
     end
     
     if ~isempty(slshIds)
@@ -360,22 +360,22 @@ function [DesignMatDat] = writeMDM(DesignMatDat, InpDat, inclMct, fmrPath)
         mdmPath = fmrPath;
     end
     
-    DesignMatDat.mdmSavename =  fullfile(mdmPath, sprintf('%s_fmrMDM_%iruns%s.mdm',InpDat.PP_NAME,nRuns,modSup));
+    DesignMatDat.mdmSavename =  fullfile(mdmPath, sprintf('%s_fmrMDM_%iruns%s.mdm', InpDat.PP_NAME, nRuns, modSup));
 
 
 %% Write mdm-file
 
-    dlmwrite(DesignMatDat.mdmSavename,'')
+    dlmwrite(DesignMatDat.mdmSavename, '')
 
-    for cntPrt=1:size(prtMDM,2)
-        if cntPrt==2 || cntPrt==5 || cntPrt==6 
+    for cntPrt = 1:size(prtMDM, 2)
+        if cntPrt == 2 || cntPrt == 5 || cntPrt == 6 
             printData(prtMDM{cntPrt}, 0, DesignMatDat.mdmSavename)
         else
             printData(prtMDM{cntPrt}, 1, DesignMatDat.mdmSavename)
         end
     end
 
-    for cntStudy=1:nRuns
+    for cntStudy = 1:nRuns
         sdmFullPath = fullfile(fmrPath, DesignMatDat.sdmSaveNames{cntStudy});
         printData(sprintf('"%s" "%s"', InpDat.FMR_FILE, sdmFullPath),0 , DesignMatDat.mdmSavename)
     end
@@ -384,7 +384,7 @@ function [DesignMatDat] = writeMDM(DesignMatDat, InpDat, inclMct, fmrPath)
 end
 
 function printData(dataPrt, rOffs, printName)
-    dlmwrite(printName, dataPrt,'-append','roffset', rOffs,'delimiter','')
+    dlmwrite(printName, dataPrt, '-append', 'roffset', rOffs, 'delimiter', '')
 end
 
 function [hrf,p] = spm_hrf_desimat(RT,P)
@@ -417,18 +417,18 @@ function [hrf,p] = spm_hrf_desimat(RT,P)
 
     % default parameters
     %-----------------------------------------------------------------------
-    p     = [6 16 1 1 6 0 32];
+    p = [6 16 1 1 6 0 32];
     if nargin > 1
         p(1:length(P)) = P;
     end
 
     % modelled hemodynamic response function - {mixture of Gammas}
     %-----------------------------------------------------------------------
-    dt    = RT/fMRI_T;
-    u     = [0:(p(7)/dt)] - p(6)/dt;
-    hrf   = spm_Gpdf_DesiMat(u,p(1)/p(3),dt/p(3)) - spm_Gpdf_DesiMat(u,p(2)/p(4),dt/p(4))/p(5);
-    hrf   = hrf([0:(p(7)/RT)]*fMRI_T + 1);
-    hrf   = hrf'/sum(hrf);
+    dt = RT/fMRI_T;
+    u = [0:(p(7)/dt)] - p(6)/dt;
+    hrf = spm_Gpdf_DesiMat(u, p(1)/p(3), dt/p(3)) - spm_Gpdf_DesiMat(u, p(2)/p(4), dt/p(4))/p(5);
+    hrf = hrf([0:(p(7)/RT)] * fMRI_T + 1);
+    hrf = hrf'/sum(hrf);
 
 end
 
