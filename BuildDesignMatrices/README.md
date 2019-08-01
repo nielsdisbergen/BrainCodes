@@ -21,18 +21,18 @@ global DesignMatDat;
 DesignMatDat = [];
 
 % if PARAMS_HRF is not declared, function assigns following std BV-hrf shape:
-HrfBase = struct('TR',2000,'respdel',6,'undshdel',16,'respdisp',1,'undshdisp',1,'respundshrat',6,'onset',0);
+HrfBase = struct('TR', 2000, 'respdel', 6, 'undshdel', 16, 'respdisp', 1, 'undshdisp', 1, 'respundshrat', 6, 'onset', 0);
 
 % if MDMparams is declared, then MDM is built based on all runs contained in DesignMatDat.
 % Example declaration, see BV manual for details:
-MDMparams = struct('RFXGLM', 0, 'PSCtransform',  1, 'zTransform', 0,'separatePreds', 0);
+MDMparams = struct('RFXGLM', 0, 'PSCtransform',  1, 'zTransform', 0, 'separatePreds', 0);
 
 for cntRun = 1:nRuns
 
-    DM=[];
+    DM = [];
 
-    DM.PP_NAME  = sprintf('S%i',cntRun);
-    DM.RUN_NAME = sprintf('Run%i',cntRun);
+    DM.PP_NAME = sprintf('S%i', cntRun);
+    DM.RUN_NAME = sprintf('Run%i', cntRun);
 
     DM.N_VOLUMES = 175;
 
@@ -48,7 +48,7 @@ for cntRun = 1:nRuns
         DM.PARAMS_MDM = MDMparams; % declared = built
     end
 
-    BuildDesignMatrices(DM); % DesignMatDat updated by function
+    BuildDesignMatrices(DM); % DesignMatDat is updated by the function
 
 end
 
