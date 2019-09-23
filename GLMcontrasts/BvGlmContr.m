@@ -4,7 +4,7 @@ function BvGlmContr(InputStruct)
 % adjusted for sharing, Aug 2016
 %
 % This code builds GLM contrasts based on BVQX GLM files. GLM data is
-% masked if a msk-file is declared, contrast(s) computed, and *.vmp's 
+% masked if a mask-file is declared, contrast(s) computed, and *.vmp's 
 % saved. Code requires a vmp-file which will be modified, hence needs to 
 % have correct meta-data for vmr-linkage. VMP-files are created per 
 % individual contrast as well as one master-vmp with all contrasts. Note 
@@ -27,7 +27,8 @@ function BvGlmContr(InputStruct)
 %
 %   Optional: 
 %   If not declared or incorrectly formatted, set to empty
-%       'MSK_FILE'       = Full path to the mask-file
+%       'MSK_FILE' = Full path to the mask-file
+%
 %
 % Example:
 %   DatIn.GLM_FILE = 'C:/Imaging/GLM_file.glm';
@@ -35,6 +36,7 @@ function BvGlmContr(InputStruct)
 %   DatIn.CONTR_MAT = [1 1 zeros(1,109); 1 -1 zeros(1,109)]';
 %   DatIn.CONTR_NAME_MAT = {'MainEffSound' 'Contr_SoundSilence'};
 %   DatIn.MSK_FILE = 'C:/Imaging/MASK_file.msk';
+%
 %   BvGlmContr(DatIn);
 %
 
@@ -46,16 +48,16 @@ function BvGlmContr(InputStruct)
     pObj.KeepUnmatched = true;
     pObj.FunctionName = mfilename;
 
-    % required vars
+    % required vars and evaluations
     varsReq = {'GLM_FILE', 'VMP_FILE', 'CONTR_MAT', 'CONTR_NAME_MAT'};
     valReq = {@(x)exist(x,'file')==2 @(x)exist(x,'file')==2 @isnumeric @(x)iscell(x)};
 
     N_VARS_REQ = length(varsReq);
     for cntReq = 1:N_VARS_REQ
-        addRequired(pObj,varsReq{cntReq},valReq{cntReq})
+        addRequired(pObj, varsReq{cntReq}, valReq{cntReq})
     end
 
-    % if not or incorrectly assigned, set empty
+    % if mask-file not assigned, set empty
     addParameter(pObj,'MSK_FILE', [], @(x) exist(x,'file')==2);
 
     parse(pObj, InputStruct.(varsReq{1}), InputStruct.(varsReq{2}), InputStruct.(varsReq{3}), InputStruct.(varsReq{4}), InputStruct)
@@ -63,32 +65,31 @@ function BvGlmContr(InputStruct)
     StIn = pObj.Results;
 
 
-%% Check and create
+%% Check and create variables
 
     vmpSavePath = fileparts(StIn.VMP_FILE);
-    if exist(vmpSavePath,'dir')~=7
+    if exist(vmpSavePath, 'dir') ~= 7
         mkdir(vmpSavePath)
     end
 
-    % currently equal to vmp path, personally use different save path for
-    % contrast vmp's
+    % currently the contrast save-path is set the vmp path, personally I use 
+    % a different save path for contrast vmp's, hence below evaluation
     mainContSavePath = vmpSavePath;
-    if exist(mainContSavePath,'dir')~=7
+    if exist(mainContSavePath, 'dir') ~= 7
         mkdir(mainContSavePath)
     end
 
     % if msk-file declard, call masking
     if ~isempty(StIn.MSK_FILE)
-        mskDat=1;
+        mskDat = true;
     else
-        mskDat=0;
+        mskDat = false;
     end
 
-    nContr = size(StIn.CONTR_MAT,2);
+    nContr = size(StIn.CONTR_MAT, 2);
 
-    if size(StIn.CONTR_NAME_MAT,2)~=nContr
-        MEname = MException('BvGlmContr:ContrNames:TooLittleNames', 'Number of contrast names (%i) unequal to number of contrasts (%i)',size(StIn.CONTR_NAME_MAT,2),nContr);
-        throw(MEname)
+    if size(StIn.CONTR_NAME_MAT, 2) ~= nContr
+        throw(MException('BvGlmContr:ContrNames:TooLittleNames', 'Number of contrast names (%i) unequal to number of contrasts (%i)',size(StIn.CONTR_NAME_MAT, 2), nContr));
     end
 
 
@@ -96,34 +97,35 @@ function BvGlmContr(InputStruct)
 
     fprintf('Loading data \n')
 
-    glmDat  = xff(StIn.GLM_FILE);
+    % load GLM data
+    glmDat = xff(StIn.GLM_FILE);
 
     mapSize = size(glmDat.GLMData.MultipleRegressionR);
-    nPred   = glmDat.NrOfPredictors;
-    df1     = glmDat.NrOfTimePoints-nPred;
     SStotal = double(glmDat.GLMData.MCorrSS);
+    nPred = glmDat.NrOfPredictors;
+    df1 = glmDat.NrOfTimePoints-nPred;
 
-    % get GLM beta-map and reshape to vector
-    glmBetas2D = double(reshape(glmDat.GLMData.BetaMaps,prod(mapSize),nPred));
+    % beta-map in double precision and reshape to vector
+    glmBetas2D = double(reshape(glmDat.GLMData.BetaMaps, prod(mapSize), nPred));
 
+    % Load VMP data
     vmpDat = xff(StIn.VMP_FILE);
     vmpDat.Map.DF1 = df1;
 
-    if sum(size(StIn.CONTR_MAT) ~= [nPred nContr])~=0
-        MEname = MException('BvGlmContr:ContrMat:MatNotCorrSize', 'Contrast matrix size does not match n-predictors*n-contrasts');
-        throw(MEname)
+    if sum(size(StIn.CONTR_MAT) ~= [nPred nContr]) ~= 0
+        throw(MException('BvGlmContr:ContrMat:MatNotCorrSize', 'Contrast matrix size does not match n-predictors*n-contrasts'));
     end
 
 
-%% Mask data if msk-file declared
+%% Mask the data if msk-file declared
    
     if mskDat
         
-        fprintf('Masking GLM data with "%s" \n',StIn.MSK_FILE)
+        fprintf('Masking GLM data with "%s" \n', StIn.MSK_FILE)
         
         msk = xff(StIn.MSK_FILE);
-        % reshape msk to vector and mask 2-d betas
-        glmBetas2D(reshape(msk.Mask,prod(mapSize),1)==0,:)=0;
+        % reshape msk to vector and mask the 2-d Betas
+        glmBetas2D(reshape(msk.Mask,prod(mapSize), 1)==0, :) = 0;
         
         mskLogiZero = msk.Mask==0;
         SStotal(mskLogiZero) = 0; % mask ss-total
@@ -132,9 +134,9 @@ function BvGlmContr(InputStruct)
     end
 
 
-%% Variables for contrasts
+%% Compute variables for the contrasts
 
-    % For details, see http://support.brainvoyager.com/installation-introduction/23-file-formats/457-developer-guide-the-format-of-glm-files-v4.html
+    % For formulation details, see http://support.brainvoyager.com/installation-introduction/23-file-formats/457-developer-guide-the-format-of-glm-files-v4.html
     % VARresiduals = SStotal * (1 - R2) / (NTimePoints - NAllPredictors)
 
     R2 = double(glmDat.GLMData.MultipleRegressionR).^2;
@@ -142,48 +144,49 @@ function BvGlmContr(InputStruct)
 
     if mskDat
         varRes(mskLogiZero) = 0;        
-        [~,mskSaveName]= fileparts(StIn.MSK_FILE);
+        [~, mskSaveName]= fileparts(StIn.MSK_FILE);
         mskSaveName = sprintf('_msk-%s',mskSaveName);
     else
-        mskSaveName=[];
+        mskSaveName = [];
     end
 
     varRes2D = varRes(:);
 
 
 %% Build contrasts, compute FDR for T's, save VMPs
+% Contrasts are saved in individual VMPs (indivVmp) as well as one with all contrasts
 
     fprintf('Building contrasts \n')
 
-    T   = zeros([mapSize nContr]);
+    tMap = zeros([mapSize nContr]);
     T2D = zeros(prod(mapSize),nContr);
 
-    % vmp with all maps
+    % create vmp to store all maps
     allVmp = vmpDat.CopyObject;
     allVmp.NrOfMaps = nContr;
 
-    % all contrasts saved in individual VMPs (indivVmp) as well as one 
-    % with all contrasts
     for cntContr = 1:nContr
 
         indivVmp = vmpDat.CopyObject;
-        indivVmp.Map.Name = StIn.CONTR_NAME_MAT{1,cntContr};
+        indivVmp.Map.Name = StIn.CONTR_NAME_MAT{1, cntContr};
 
-        % t = c'b / sqrt(VARresiduals * c'(X'X)-1c)
-        T2D(:,cntContr) = MrGlmContrT2d(glmBetas2D, StIn.CONTR_MAT(:,cntContr),varRes2D, glmDat.iXX);
-        T(:,:,:,cntContr) = reshape(T2D(:,cntContr),mapSize);
+        % Calculate T's: t = c'b / sqrt(VARresiduals * c'(X'X)-1c)
+        T2D(:, cntContr) = MrGlmContrT2d(glmBetas2D, StIn.CONTR_MAT(:, cntContr), varRes2D, glmDat.iXX);
+        tMap(:,:,:, cntContr) = reshape(T2D(:, cntContr), mapSize);
 
-        [indivVmp.Map.FDRThresholds(:,2), indivVmp.Map.FDRThresholds(:,3)] = CalcFdrMri(indivVmp.Map.FDRThresholds(:,1), T2D(:,cntContr), df1);
+        [indivVmp.Map.FDRThresholds(:, 2), indivVmp.Map.FDRThresholds(:, 3)] = CalcFdrMri(indivVmp.Map.FDRThresholds(:, 1), T2D(:, cntContr), df1);
 
-        indivVmp.Map.VMPData = T(:,:,:,cntContr);
+        indivVmp.Map.VMPData = tMap(:,:,:, cntContr);
 
-        indivVmp.SaveAs(fullfile(mainContSavePath,sprintf('%s%s.vmp',StIn.CONTR_NAME_MAT{1,cntContr},mskSaveName)));
+        % save VMP with current contrast
+        indivVmp.SaveAs(fullfile(mainContSavePath, sprintf('%s%s.vmp', StIn.CONTR_NAME_MAT{1, cntContr}, mskSaveName)));
 
         allVmp.Map(cntContr) = indivVmp.Map;
         indivVmp.ClearObject;
 
     end
 
+    % save VMP with all contrasts
     allVmp.SaveAs(fullfile(mainContSavePath,sprintf('AllContrMaps%s.vmp',mskSaveName)));
     allVmp.ClearObject;
 
@@ -191,28 +194,28 @@ function BvGlmContr(InputStruct)
 end
 
 
-function [T2D] = MrGlmContrT2d(Betas2D,contrMat,varRes2D,iXX)
+function [T2D] = MrGlmContrT2d(Betas2D, contrMat, varRes2D, iXX)
 %
 % @ Niels R. Disbergen
 %
 % Calcualte 2D-T's for contrasts with GLM Betas
 %
 % Syntax: 
-%   [T2D] = MRGLMContrT2D(Betas2D,contrMat,varRes2D,iXX)
+%   [T2D] = MRGLMContrT2D(Betas2D, contrMat, varRes2D, iXX)
 %
 % Betas2D  = glm betas vector
 % contrMat = contrast coded * n-contr
 % varRes2D = variance residuals, ordered as Betas
-% iXX      = (X*X')^-1
+% iXX = (X*X')^-1
 %
 
     narginchk(4,4)
 
-    nContr = size(contrMat,2);
-    T2D    = nan(size(Betas2D,1),nContr);
+    nContr = size(contrMat, 2);
+    T2D = nan(size(Betas2D, 1), nContr);
 
     for cntContr = 1:nContr
-        T2D(:,cntContr) = (Betas2D*contrMat(:,cntContr)) ./ ( sqrt(contrMat(:,cntContr)'*iXX*contrMat(:,cntContr)*varRes2D) );
+        T2D(:, cntContr) = (Betas2D * contrMat(:, cntContr)) ./ (sqrt(contrMat(:, cntContr)' * iXX * contrMat(:, cntContr) * varRes2D));
     end
 
 end
@@ -252,13 +255,13 @@ function [tID, tNp, varargout] = CalcFdrMri(qVec, T2D, df1)
     narginchk(3,3)
 
     if isvector(T2D)
-        nVoxs=length(T2D);
+        nVoxs = length(T2D);
     else
         error('T2D is not a vector')
     end
 
     if isvector(qVec)
-        nQvals=length(qVec);
+        nQvals = length(qVec);
     else
         error('qVec is not a vector')
     end
@@ -269,47 +272,47 @@ function [tID, tNp, varargout] = CalcFdrMri(qVec, T2D, df1)
     pThrID = zeros(nQvals,1);
 
 
-%% Calc thresh t's & p's for q's
+%% Calc threshold t's & p's for q's
     % see Lazar, & Nichols 2002 for details
 
-    % sort p's; not tossing nan!
-    pVals = sort((2*tcdf(abs(T2D), df1, 'upper')),'ascend'); 
+    % sort p's; note, not tossing nan!
+    pVals = sort((2 * tcdf(abs(T2D), df1, 'upper')), 'ascend');
 
-    for cntQ=1:nQvals
+    for cntQ = 1:nQvals
 
-        % find p's matching for q
-        tmpPid = pVals(find(pVals<=((1:nVoxs)'/nVoxs)*double(qVec(cntQ)/1), 1, 'last'));
+        % find p's matching current q
+        tmpPid = pVals(find(pVals <= ((1:nVoxs)'/nVoxs) * double(qVec(cntQ)/1), 1, 'last'));
 
         if ~isempty(tmpPid)
-            pThrID(cntQ,1) = tmpPid;
+            pThrID(cntQ, 1) = tmpPid;
         else
-            pThrID(cntQ,1) = 1;
+            pThrID(cntQ, 1) = 1;
             warning('No voxel exceeds FDR-thresh for q=%1.4f @ cV=1', qVec(cntQ))
         end
 
         % get threshold t's from p's
-        tID(cntQ,1) = abs(tinv(pThrID(cntQ,1), df1));
+        tID(cntQ, 1) = abs(tinv(pThrID(cntQ, 1), df1));
 
-        % Non-parametric version
-        tmpPidNp = pVals(find(pVals<=((1:nVoxs)'/nVoxs)*double(qVec(cntQ)/(log(nVoxs)+vpa(eulergamma))), 1, 'last' ));
+        % Non-parametric version (Np)
+        tmpPidNp = pVals(find(pVals <= ((1:nVoxs)'/nVoxs) * double(qVec(cntQ) / (log(nVoxs) + vpa(eulergamma))), 1, 'last' ));
 
         if ~isempty(tmpPidNp)
-            pThrNp(cntQ,1) = tmpPidNp;
+            pThrNp(cntQ, 1) = tmpPidNp;
         else
-            pThrNp(cntQ,1) = 1;
+            pThrNp(cntQ, 1) = 1;
             warning('No voxel exceeds FDR-thresh q=%1.4f @ cV=ln(V)+E',qVec(cntQ))
         end
 
-        tNp(cntQ,1)    = abs(tinv(pThrNp(cntQ,1), df1));
+        tNp(cntQ,1) = abs(tinv(pThrNp(cntQ, 1), df1));
 
     end
 
 
 %% Output
 
-    if nargout>=3
+    if nargout >= 3
         varargout{1} = pThrID;
-        if nargout==4
+        if nargout == 4
             varargout{2} = pThrNp;
         end
     end

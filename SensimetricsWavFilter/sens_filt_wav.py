@@ -3,12 +3,12 @@
 """Apply Sensimetrics filters to *.wav file
     
     This performs equalification filtering for the Sensimetrics system;
-    official script based filtering is only supported in MATLAB. Testing
+    official script-based filtering is only supported in MATLAB. Testing
     performed by comparison of resulting wav-files to both MATLAB and official
     EQ Filtering application of Sensimetrics, using Python 2.7.12 and 3.5.2 with
     scipy 0.18 and numpy 1.11.1.
 
-    Implementation built for 16bit *.wav-files only; Sensimetrics filter-files tend
+    Implementation for 16bit *.wav-files only; Sensimetrics filter-files tend
     to be sampled at 44.1kHz, in case wav-file is at different sample frequency a
     warning will be issued. No re-sampling is currently implemented.
 """
@@ -53,10 +53,10 @@ def sens_filt(wav_file, filt_left, filt_right, lab_suffix=""):
         Filters are loaded from Sensimetrics provided binary files and 
         applied to *.wav file left and right channels independently. If the 
         *.wav file is only a single channel, channel one will be copied to 
-        channel two and filters applied accordingly. New wav-file is written to 
-        the original *.wav directory and saved with suffix '_sensFilt.wav'. 
-        When called with a lab_suffix this will be suffix to the file-name, 
-        e.g. '_sensFilt7T.wav'.
+        channel two and filters applied accordingly. A new wav-file is
+        written to the original *.wav directory and saved with suffix
+        '_sensFilt.wav'. When called with a lab_suffix this will be suffix to
+        the file-name, e.g. '_sensFilt7T.wav'.
         
         Args:
             wav_file (file): *.wav file to filter, 16-bit only
