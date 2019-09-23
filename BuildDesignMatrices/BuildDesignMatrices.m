@@ -9,7 +9,7 @@ function BuildDesignMatrices(InputStruct)
 % convolving with HRF, predictor exclusion, mdm options, run and 
 % participant naming.
 %
-% !! When this function is called it adds run data to global variable 
+% !! When this function is called it adds run data to the global variable 
 % DesignMatDat, which has to be declared before running this fucntion. As
 % this function merely adds data to the structure, rerun with equal inputs
 % will result in replication. This implementation is intentional; in case
@@ -17,9 +17,9 @@ function BuildDesignMatrices(InputStruct)
 % to (re-)calling !!
 %
 % Note this is a relatively bare-bone function with limited checks, hence 
-% it  should be employed accordingly.
+% it should be employed accordingly.
 % 
-% HRF via spm_hrf function, hardcoded
+% HRF model via the spm_hrf function, hardcoded
 % 
 % Syntax:
 % BuildDesignMatrices(InputStruct)
@@ -29,11 +29,11 @@ function BuildDesignMatrices(InputStruct)
 %
 %   Required:
 %       'PRT_FILE' = full path to PRT file
-%        N_VOLUMES = total number of volumes in run
+%        N_VOLUMES = total number of volumes in the run
 %
 %
 %   Optional: 
-%   Not declared set to default
+%   When not declared, they are set to default
 %       'MOTPAR_FILE' = full path to BVQX motion parameter file (default = no
 %                       motion paramaters added)
 %
@@ -45,14 +45,14 @@ function BuildDesignMatrices(InputStruct)
 %                       respundshrat=6, onset=0; see spm_hrf for reference
 %
 %        EXCL_PREDS   = predictor names to be excluded, has to be equal to 
-%                       PRT declared names! default = {}: include all
+%                       the names as declared in the PRT! default = {}: include all
 %
 %        CONV_PRED    = convolve boxcar/fir predictors with hrf (default =
 %                       false)
 %
 %        PARAMS_MDM   = struct with parameters for MDM building, fields:
 %                       RFXGLM, PSCtransform, zTransform, separatePreds. If
-%                       declared a MDM will be built for that respective 
+%                       declared, a MDM will be build after that respective 
 %                       run, taking into account all the sdms included in 
 %                       the global variable DesignMatDat. Default = []: no
 %                       mdm is built
@@ -84,7 +84,7 @@ function BuildDesignMatrices(InputStruct)
     pObj.KeepUnmatched = true;
     pObj.FunctionName = mfilename;
 
-    % required vars settings
+    % required vars and evaluations
     varsReq = {'PRT_FILE' 'N_VOLUMES'};
     chkVals = {@(x) exist(x,'file')==2, @(x) mod(x,1)==0};
 
@@ -92,7 +92,7 @@ function BuildDesignMatrices(InputStruct)
         addRequired(pObj,varsReq{cntReq},chkVals{cntReq})
     end
 
-    % if these are not assigned, set optional
+    % if below are not assigned, optional is set
      addParameter(pObj,'MOTPAR_FILE', [], @(x) exist(x,'file')==2)
      addParameter(pObj,'PARAMS_HRF', HrfBase, @(x) isstruct(x) & sum(isfield(x,fieldnames(HrfBase)))==length(fieldnames(HrfBase)))
      addParameter(pObj,'EXCL_PREDS', {}, @iscellstr)
@@ -101,30 +101,30 @@ function BuildDesignMatrices(InputStruct)
      addParameter(pObj,'RUN_NAME', sprintf('Run%i', size(DesignMatDat.sdmSaveNames,1)+1), @ischar)
      addParameter(pObj,'PP_NAME', 'Subject', @ischar)
 
-     parse(pObj, InputStruct.(varsReq{1}), InputStruct.(varsReq{2}), InputStruct.(varsReq{3}), InputStruct)
+     parse(pObj, InputStruct.(varsReq{1}), InputStruct.(varsReq{2}), InputStruct)
 
      InpDat = pObj.Results;
 
 
 %% Check and create
 
-    prtPath = fileparts(InpDat.PRT_FILE); % save location sdm
-    [~, sdmNameBase, ~] = fileparts(InpDat.PRT_FILE); % save name base sdm
+    [prtPath, sdmNameBase, ~] = fileparts(InpDat.PRT_FILE); % save-location sdm, save-name base sdm
 
-    % no MDMparams no mdm
+    % if no MDMparams, no mdm building
     if ~isempty(InpDat.PARAMS_MDM)
         prtMdm = true;
     else
         prtMdm = false;
     end
 
-    % no motion parameter file, MCT predictors not added
+    % if no motion parameter file declared, MCT predictors not added
     if ~isempty(InpDat.MOTPAR_FILE)
         inclMct = true;
     else
         inclMct = false;
     end
 
+    % warning if unconvolved DM
     if ~InpDat.CONV_PRED
         warning('Building Unconvolved Designmatrix');
         pause(2);
@@ -133,15 +133,15 @@ function BuildDesignMatrices(InputStruct)
 
 %% Build predictors   
 
+    fprintf('Building SDM for "%s" \n', InpDat.PRT_FILE)
+
     % build hrf
     [HrfBase, paraHrf] = spm_hrf_desimat(InpDat.PARAMS_HRF.TR/1000, [InpDat.PARAMS_HRF.respdel, InpDat.PARAMS_HRF.undshdel, InpDat.PARAMS_HRF.respdisp, InpDat.PARAMS_HRF.undshdisp, InpDat.PARAMS_HRF.respundshrat, InpDat.PARAMS_HRF.onset]);
-    
-    fprintf('SDM for "%s" \n', InpDat.PRT_FILE)
 
-    % get N-volumes and slices
+    % set N-volumes
     PredInf.totalVols = InpDat.N_VOLUMES;
 
-    % extract prt data
+    % load prt data
     prtRead = xff(InpDat.PRT_FILE);
 
     % declare variables
@@ -154,7 +154,7 @@ function BuildDesignMatrices(InputStruct)
 
     declPredHrf = [];
 
-    cntPrtDeclPred = 1;
+    cntPrtDeclPred = 0; % count N-predictors included
     declPredBoxcarStore = zeros(PredInf.totalVols, PredInf.nTotalDeclPreds);
 
     % build predictors and convolve boxcars with HRF if called
@@ -172,10 +172,16 @@ function BuildDesignMatrices(InputStruct)
 
         if ~exclPred
 
+            cntPrtDeclPred = cntPrtDeclPred + 1;
+
             PredInf.predNames(1, cntPrtDeclPred) = prtRead.Cond(cntDeclPred).ConditionName;
             PredInf.predColors(cntPrtDeclPred, :) = prtRead.Cond(cntDeclPred).Color;
+            
+            
+            % get on-off from preds
             onOffPred = prtRead.Cond(cntDeclPred).OnOffsets;
 
+            % build box-cars for predictors
             declPredBoxcar = zeros(PredInf.totalVols, PredInf.nTotalDeclPreds);
             for cntOnOffSet = 1:prtRead.Cond(cntDeclPred).NrOfOnOffsets
                 if sum(onOffPred) ~= 0
@@ -184,23 +190,21 @@ function BuildDesignMatrices(InputStruct)
                 end
             end
 
-            % convolve boxcar with hrf 
+            % convolve boxcar with hrf if called
             if ~InpDat.CONV_PRED
                 tempPredHrf = declPredBoxcar(:, cntPrtDeclPred);
             else
                 try
                     tempPredHrf = conv(declPredBoxcar(:, cntPrtDeclPred), HrfBase);
                 catch ME
-                    MEconv = MException('ASAimaging:DesignMats:convError', 'Error while convolving for "%s"', InpDat.PRT_FILE);
+                    MEconv = MException('BuildDesignMatrices:BoxcarConvError', 'Error while convolving for "%s"', InpDat.PRT_FILE);
                     MEconv = addCause(MEconv, ME);
                     throw(MEconv)
                 end
             end
 
-            % cut at total volumes
+            % trim convolution at total volumes
             declPredHrf(:, cntPrtDeclPred) = tempPredHrf(1:PredInf.totalVols, :);
-
-            cntPrtDeclPred = cntPrtDeclPred + 1;
 
         end
 
@@ -217,7 +221,7 @@ function BuildDesignMatrices(InputStruct)
         motionParam = xff(InpDat.MOTPAR_FILE);
 
         if size(motionParam.SDMMatrix, 1) ~= InpDat.N_VOLUMES
-            throw(MException('DesiMat:IncludeMCT:MCTvolumessNotEqToeDeclaredVolumes','ERROR: Motion parameter file has %i volumes, declared volumes has %i', size(motionParam.SDMMatrix, 1), InpDat.N_VOLUMES));
+            throw(MException('BuildDesignMatrices:IncludeMCT:MCTvolumessNotEqToDeclaredVolumes','Error: motion parameter file has %i volumes, declared volumes has %i', size(motionParam.SDMMatrix, 1), InpDat.N_VOLUMES));
         end
 
         PredInf.predNames = [PredInf.predNames motionParam.PredictorNames 'Constant'];
@@ -225,11 +229,11 @@ function BuildDesignMatrices(InputStruct)
 
         PredInf.nAllPreds = PredInf.nTotalDeclPreds + PredInf.nMCTparam;
 
-        % add preds, motion & intercept
+        % add to design matrix preds, motion & intercept
         designMat = [declPredHrf motionParam.SDMMatrix ones(PredInf.totalVols, 1)];
 
         motionParam.ClearObject;
-        currSdmName = sprintf('%s_inclMCT.sdm', sdmNameBase);
+        currSdmName = sprintf('%s_inclMCT.sdm', sdmNameBase); %save-name
 
     else
 
@@ -237,7 +241,7 @@ function BuildDesignMatrices(InputStruct)
         PredInf.predNames(1, end+1) = 'Constant';
 
         designMat = [declPredHrf ones(PredInf.totalVols, 1)];
-        currSdmName = sprintf('%s.sdm', sdmNameBase);
+        currSdmName = sprintf('%s.sdm', sdmNameBase); %save-name
 
     end
 
@@ -265,12 +269,12 @@ end
 
 
 function writeSDM(PredInf, DesignMatDat, currSdmName, InpDat, fmrPath)
-
+% This function handles all writing operations for the SDM filetype
 
 %% Build BrainVoyager *.sdm variables
 
     prtSDM{1} = 'FileVersion: 1';
-    prtSDM{2} = sprintf('NrOfPredictors: %i', PredInf.nAllPreds + 1); %+1=>intercept
+    prtSDM{2} = sprintf('NrOfPredictors: %i', PredInf.nAllPreds + 1); % +1 for intercept
     prtSDM{3} = sprintf('NrOfDataPoints: %i', PredInf.totalVols);
     prtSDM{4} = sprintf('IncludesConstant: 1');
     prtSDM{5} = sprintf('FirstConfoundPredictor: %i', PredInf.nTotalDeclPreds + 1);
@@ -309,6 +313,7 @@ function writeSDM(PredInf, DesignMatDat, currSdmName, InpDat, fmrPath)
     end
 
     dlmwrite(sdmSaveName, '')
+    % printData contains default options on dlmwrite()
     printData(prtSDM{1}, 0, sdmSaveName)
 
     for cntPrt = 2:7
@@ -326,6 +331,7 @@ end
 
 
 function [DesignMatDat] = writeMDM(DesignMatDat, InpDat, inclMct, fmrPath)
+% This function handles all writing operations for the MDM filetype
 
 %% Build BrainVoyager variables
 
@@ -341,7 +347,7 @@ function [DesignMatDat] = writeMDM(DesignMatDat, InpDat, inclMct, fmrPath)
 
 
 %% Check and create
-    
+
     if inclMct
         modSup = '_inclMCT';
     else
@@ -387,8 +393,8 @@ function printData(dataPrt, rOffs, printName)
     dlmwrite(printName, dataPrt, '-append', 'roffset', rOffs, 'delimiter', '')
 end
 
-function [hrf,p] = spm_hrf_desimat(RT,P)
-    % Name-only adaptation of spm_hrf function for BuildDesignMatrices.m!
+function [hrf, p] = spm_hrf_desimat(RT,P)
+    % Name-only adaptation of spm_hrf function for BuildDesignMatrices.m
     %
     % returns a hemodynamic response function
     % FORMAT [hrf,p] = spm_hrf(RT,[p]);
