@@ -15,7 +15,7 @@ In case you have any questions or suggestions, feel free to contact me or open a
 ### Wav-processing (Python) ###
 - Apply [Sensimetrics Equalization](/SensimetricsWavFilter) filters to \*.wav files - ```sens_filt_wav.py```
 
-### Miscellaneous Functions ###
+### Miscellaneous Functions (Matlab) ###
 - Send an [Email](/MiscFunctions/SendMailOutlook.m) with Outlook on Windows through ```actxserver```  - ```SendMailOutlook.m```
 
 _More codes will follow when I find the time to prepare them for sharing_
