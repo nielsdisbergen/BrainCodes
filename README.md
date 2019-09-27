@@ -9,14 +9,16 @@ In case you have any questions or suggestions, feel free to contact me or open a
 ## Repository Tree ##
 
 ### BrainVoyager (Matlab) ###
-- Build [design matrices](/BuildDesignMatrices) based on protocol (\*.prt) files - ```BuildDesignMatrices.m```
-- Compute [GLM contrast(s)](/GLMcontrasts) from fitted \*.glm files - ```BvGlmContr.m```
+- Build design matrices based on protocol (\*.prt) files - [```BuildDesignMatrices.m```](/BuildDesignMatrices)
+- Compute GLM contrast(s) from fitted \*.glm files - [```BvGlmContr.m```](/GLMcontrasts)
 
 ### Wav-processing (Python) ###
-- Apply [Sensimetrics Equalization](/SensimetricsWavFilter) filters to \*.wav files - ```sens_filt_wav.py```
+- Apply Sensimetrics Equalization filters to \*.wav files - [```sens_filt_wav.py```](/SensimetricsWavFilter)
 
 ### Miscellaneous Functions (Matlab) ###
-- Send an [Email](/MiscFunctions/SendMailOutlook.m) with Outlook on Windows through ```actxserver```  - ```SendMailOutlook.m```
+- Send an Email with Outlook on Windows through ```actxserver```  - [```SendMailOutlook.m```](/MiscFunctions/SendMailOutlook.m)
+- Add the currently open Matlab tab to a (git) folder - [```MatlabTabToGit.m```](/MiscFunctions/MatlabTabToGit.m)
+- List all files in a directory and perform optional path manipulations - [```GetAllFiles.m```](/MiscFunctions/GetAllFiles.m)
 
 _More codes will follow when I find the time to prepare them for sharing_
 
