@@ -16,9 +16,10 @@ In case you have any questions or suggestions, feel free to contact me or open a
 - Apply Sensimetrics Equalization filters to \*.wav files - [```sens_filt_wav.py```](/SensimetricsWavFilter)
 
 ### Miscellaneous Functions (Matlab) ###
-- Send an Email with Outlook on Windows through ```actxserver```  - [```SendMailOutlook.m```](/MiscFunctions/SendMailOutlook.m)
 - Add the currently open Matlab tab to a (git) folder - [```MatlabTabToGit.m```](/MiscFunctions/MatlabTabToGit.m)
 - List all files in a directory and perform optional path manipulations - [```GetAllFiles.m```](/MiscFunctions/GetAllFiles.m)
+- Send an Email with Outlook on Windows through ```actxserver```  - [```SendMailOutlook.m```](/MiscFunctions/SendMailOutlook.m)
+- Set a Calendar entry in Outlook on Windows through ```actxserver```  - [```OutlookCalendarEntry.m```](/MiscFunctions/OutlookCalendarEntry.m)
 
 _More codes will follow when I find the time to prepare them for sharing_
 
