@@ -12,10 +12,13 @@ In case you have any questions or suggestions, feel free to contact me or open a
 - Build design matrices based on protocol (\*.prt) files - [```BuildDesignMatrices.m```](/BuildDesignMatrices)
 - Compute GLM contrast(s) from fitted \*.glm files - [```BvGlmContr.m```](/GLMcontrasts)
 
-### Wav-processing (Python) ###
+### Miscellaneous (f)MRI Related Functions (Matlab) ###
+- Calculate FDR thresholds based on voxel T-values - [```CalcFdrFmri.m```](/MiscMriFunctions/CalcFdrFmri.m)
+
+### Wav File Processing (Python) ###
 - Apply Sensimetrics Equalization filters to \*.wav files - [```sens_filt_wav.py```](/SensimetricsWavFilter)
 
-### Miscellaneous Functions (Matlab) ###
+### Miscellaneous General Functions (Matlab) ###
 - Add the currently open Matlab tab to a (git) folder - [```MatlabTabToGit.m```](/MiscFunctions/MatlabTabToGit.m)
 - List all files in a directory and perform optional path manipulations - [```GetAllFiles.m```](/MiscFunctions/GetAllFiles.m)
 - Send an Email with Outlook on Windows through ```actxserver```  - [```SendMailOutlook.m```](/MiscFunctions/SendMailOutlook.m)
