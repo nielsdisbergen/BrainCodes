@@ -15,14 +15,18 @@ In case you have any questions or suggestions, feel free to contact me or open a
 ### Miscellaneous (f)MRI Related Functions (Matlab) ###
 - Calculate FDR thresholds based on voxel T-values - [```CalcFdrFmri.m```](/MiscMriFunctions/CalcFdrFmri.m)
 
-### Wav File Processing (Python) ###
-- Apply Sensimetrics Equalization filters to \*.wav files - [```sens_filt_wav.py```](/SensimetricsWavFilter)
-
 ### Miscellaneous General Functions (Matlab) ###
 - Add the currently open Matlab tab to a (git) folder - [```MatlabTabToGit.m```](/MiscFunctions/MatlabTabToGit.m)
 - List all files in a directory and perform optional path manipulations - [```GetAllFiles.m```](/MiscFunctions/GetAllFiles.m)
 - Send an Email with Outlook on Windows through ```actxserver```  - [```SendMailOutlook.m```](/MiscFunctions/SendMailOutlook.m)
 - Set a Calendar entry in Outlook on Windows through ```actxserver```  - [```OutlookCalendarEntry.m```](/MiscFunctions/OutlookCalendarEntry.m)
+
+### Wav Files in Python ###
+- Apply Sensimetrics Equalization filters - [```sens_filt_wav.py```](/SensimetricsWavFilter)
+
+### Wav Files in Matlab ###
+- Apply Sensimetrics Equalization filters - [```SensimetricS14FilterWav.m```](/WavProcessing/SensimetricS14FilterWav.m)
+- Check if wav-data is potentially clipping and try to correct it  - [```CheckClippWav.m```](/WavProcessing/CheckClippWav.m)
 
 _More codes will follow when I find the time to prepare them for sharing_
 
