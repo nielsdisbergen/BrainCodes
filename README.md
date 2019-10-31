@@ -27,6 +27,7 @@ In case you have any questions or suggestions, feel free to contact me or open a
 ### Wav Files in Matlab ###
 - Apply Sensimetrics Equalization filters - [```SensimetricS14FilterWav.m```](/WavProcessing/SensimetricS14FilterWav.m)
 - Check if wav-data is potentially clipping and try to correct it  - [```CheckClippWav.m```](/WavProcessing/CheckClippWav.m)
+- Apply log-ramping to file onsets and offsets - [```RampWavFiles.m```](/WavProcessing/RampWavFiles.m)
 
 _More codes will follow when I find the time to prepare them for sharing_
 
